@@ -7,7 +7,7 @@ async function transliteratePlayers(playerName) {
     const response = await axios.post(
       OPENAI_API_ENDPOINT,
       {
-        model: "gpt-4",
+        model: "gpt-3.5",
         messages: [
           {
             role: "user",
