@@ -86,18 +86,26 @@ function extractName(name) {
 }
 
 function extractFromClub(fromClubName) {
-  const match = fromClubName.match(/\(([^➡️]+)➡️/);
+  const regex = /\(([^)]+)\➡️/;
 
-  // Check if a match is found and extract the result
-  const extractedClub = match ? match[1].trim() : "Club not found";
+  // Use the match method to find the match in the text
+  const match = fromClubName.match(regex);
+
+  // Extract the value from the matched group
+  const extractedClub = match && match[1];
+  console.log("fromclub", extractedClub);
   return extractedClub;
 }
 
 function extractToClub(toClubName) {
-  const match = toClubName.match(/\(([^➡️]+)➡️/);
+  const regex = /➡️\s([^💲:]+)/;
 
-  // Check if a match is found and extract the result
-  const extractedClub = match ? match[1].trim() : "Club not found";
+  // Use the match method to find the match in the text
+  const match = toClubName.match(regex);
+
+  // Extract the value from the matched group
+  const extractedClub = match && match[1];
+  console.log("toClub", extractedClub);
   return extractedClub;
 }
 function extractTransferAmount(transferAmount) {
