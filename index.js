@@ -11,10 +11,15 @@ app.use(cors());
 const router = require("./routes/rssRoute");
 const getTransferRssFeed = require("./rss_json/transfer");
 const { mainFaceBook } = require("./controllers/FaceBookController");
-mongoose.connect("mongodb://localhost:27017/rss", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+const {
+  RSS_ONE,
+  RSS_THREE,
+  RSS_FOUR,
+  RSS_FIVE,
+  RSS_TWO,
+} = require("./rss_json/rss_constants");
+const getFaceBookRssFeed = require("./rss_json/facebook");
+mongoose.connect("mongodb://localhost:27017/rss");
 const db = mongoose.connection;
 db.on("error", (err) => {
   console.log(err);
@@ -30,12 +35,20 @@ app.listen(8000, () => {
 });
 // run auto store
 // runAutoStoresFeed();
+// getTransferRssFeed();
 getTransferRssFeed();
-mainFaceBook();
+
+// mainFaceBook();
+// getFaceBookRssFeed(RSS_ONE);
+// getFaceBookRssFeed(RSS_THREE);
+// getFaceBookRssFeed(RSS_FOUR);
+// getFaceBookRssFeed(RSS_FIVE);
+// getFaceBookRssFeed(RSS_TWO);
 //api route
 app.use("/api/rss", router);
 cron.schedule("0 0 * * *", async () => {
   console.log("Running RSS fetch and store task...");
-  await getTransferRssFeed();
-  await mainFaceBook();
+  // await getTransferRssFeed(RSS_FIVE);
+
+  // await mainFaceBook();
 });

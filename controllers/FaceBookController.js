@@ -3,7 +3,7 @@ const getFaceBookRssFeed = require("../rss_json/facebook");
 // fetch all data
 const index = (req, res, next) => {
   FaceBook.find()
-    .sort({ updatedAt: -1 })
+    .sort({ pubDate: -1 })
     .then((response) => {
       res.json({
         response,
@@ -29,6 +29,9 @@ async function mainFaceBook() {
         title: item.title,
         link: item.link,
         description: item.description,
+        pubDate: item.pubDate,
+        creater: item.creater,
+        mediaContent: item.mediaContent,
       });
 
       const data = await fetchDataByLink(item.link);

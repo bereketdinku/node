@@ -14,6 +14,20 @@ const faceBookSchema = new Schema(
       type: String,
       default: "",
     },
+    mediaContent: {
+      type: String,
+      default: "",
+    },
+    profilePicture: {
+      type: String,
+    },
+    creater: {
+      type: String,
+      default: "",
+    },
+    pubDate: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

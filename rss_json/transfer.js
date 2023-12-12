@@ -25,7 +25,10 @@ async function getTransferRssFeed() {
         fromClubName: extractFromClub(node.title),
         toClubName: extractToClub(node.title),
         playerName: extractName(node.title),
-        transferAmount: extractTransferAmount(node.description),
+        transferAmount: extractTransferAmount(node.title),
+        playerProfile: extractPhoto(extractName(node.title)),
+        fromClubPhoto: extractPhoto(extractFromClub(node.title)),
+        toClubPhoto: extractPhoto(extractToClub(node.title)),
         // Add more fields as needed
       }));
 
@@ -44,10 +47,13 @@ async function getTransferRssFeed() {
       // );
       for (const item of items) {
         const result = {
-          fromClubName: item.fromClubName,
-          toClubName: item.toClubName,
+          fromClubName: await transliteratePlayers(item.fromClubName),
+          toClubName: await transliteratePlayers(item.toClubName),
           playerName: await transliteratePlayers(item.playerName),
           transferAmount: item.transferAmount,
+          playerProfile: item.playerProfile,
+          fromClubPhoto: item.fromClubPhoto,
+          toClubPhoto: item.toClubPhoto,
         };
         console.log();
         const response = await fetchDataByPlayerName(
@@ -61,7 +67,7 @@ async function getTransferRssFeed() {
         }
         //
       }
-      // console.log(transformedItems);
+      console.log(items);
       // return transformedItems;
     } else {
       // Handle HTTP error
@@ -109,13 +115,25 @@ function extractToClub(toClubName) {
   return extractedClub;
 }
 function extractTransferAmount(transferAmount) {
-  const regex = /Transfer fee: [^]+/;
+  const regex = /: [^]+/;
   const match = transferAmount.match(regex);
 
   // Check if a match is found and extract the result
   const extractedTransferInfo = match
     ? match[0].trim()
     : "Transfer info not found";
+  // let modifiedName = name.replace("loan.", "በውሰት");
+  if (extractedTransferInfo == "loan") {
+    extractedTransferInfo = "በውሰት";
+  } else if (extractedTransferInfo == "free transfer") {
+    extractedTransferInfo = "ነጻ ዝውውር";
+  } else if (
+    extractedTransferInfo == "-" ||
+    extractedTransferInfo == "?" ||
+    extractedTransferInfo == " "
+  ) {
+    extractedTransferInfo = "አልተገለጸም";
+  }
   return extractedTransferInfo;
 }
 //fetch data from server by player name
@@ -131,5 +149,11 @@ async function fetchDataByPlayerName(playerName) {
   } catch (error) {
     console.error("Error fetching data:", error.message);
   }
+}
+function extractPhoto(name) {
+  let modifiedName = name.replace(/\s+/g, "-");
+
+  let photo = `https://fifaratings.com/wp-content/uploads/${modifiedName}.png`;
+  return photo;
 }
 module.exports = getTransferRssFeed;

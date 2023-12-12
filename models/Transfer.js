@@ -8,6 +8,15 @@ const transferSchema = new Schema(
     toClubName: {
       type: String,
     },
+    playerProfile: {
+      type: String,
+    },
+    fromClubPhoto: {
+      type: String,
+    },
+    toClubPhoto: {
+      type: String,
+    },
     playerName: {
       EnglishName: {
         type: String,
