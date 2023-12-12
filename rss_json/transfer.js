@@ -53,21 +53,20 @@ async function getTransferRssFeed() {
           firstItem = false;
           continue;
         }
-        const result = {
-          fromClubName: await transliteratePlayers(item.fromClubName),
-          toClubName: await transliteratePlayers(item.toClubName),
-          playerName: await transliteratePlayers(item.playerName),
-          transferAmount: item.transferAmount,
-          playerProfile: item.playerProfile,
-          fromClubPhoto: item.fromClubPhoto,
-          toClubPhoto: item.toClubPhoto,
-        };
+
         console.log(result);
-        const response = await fetchDataByPlayerName(
-          result.playerName.EnglishName
-        );
+        const response = await fetchDataByPlayerName(item.playerName);
         // console.log(response);
         if (!response) {
+          const result = {
+            fromClubName: await transliteratePlayers(item.fromClubName),
+            toClubName: await transliteratePlayers(item.toClubName),
+            playerName: await transliteratePlayers(item.playerName),
+            transferAmount: item.transferAmount,
+            playerProfile: item.playerProfile,
+            fromClubPhoto: item.fromClubPhoto,
+            toClubPhoto: item.toClubPhoto,
+          };
           Transfer(result).save();
         } else {
           console.log("found");
