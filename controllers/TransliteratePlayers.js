@@ -1,12 +1,13 @@
 const axios = require("axios");
 async function transliteratePlayers(playerName) {
   const OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
-  const OPENAI_API_KEY = "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";
+  const OPENAI_API_KEY = "";
+  // const OPENAI_API_KEY = "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";
   try {
     const response = await axios.post(
       OPENAI_API_ENDPOINT,
       {
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
         messages: [
           {
             role: "user",

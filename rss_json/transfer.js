@@ -2,8 +2,10 @@ const axios = require("axios");
 const transliteratePlayers = require("../controllers/TransliteratePlayers");
 const parseString = require("xml2js").parseString;
 
+// const rssUrl =
+//   "https://crssnt.com/preview/https:/docs.google.com/spreadsheets/d/1h-XoXOlAeY-ZriweURBNqf7SnQfmejrI799RxvWlYpg/edit#gid=0";
 const rssUrl =
-  "https://crssnt.com/preview/https:/docs.google.com/spreadsheets/d/1h-XoXOlAeY-ZriweURBNqf7SnQfmejrI799RxvWlYpg/edit#gid=0";
+  "https://crssnt.com/preview?id=1h-XoXOlAeY-ZriweURBNqf7SnQfmejrI799RxvWlYpg&name=big";
 const util = require("util");
 const Transfer = require("../models/Transfer");
 const parseStringPromise = util.promisify(parseString);
@@ -45,7 +47,12 @@ async function getTransferRssFeed() {
       //     transferAmount: item.transferAmount,
       //   }))
       // );
+      let firstItem = true;
       for (const item of items) {
+        if (firstItem) {
+          firstItem = false;
+          continue;
+        }
         const result = {
           fromClubName: await transliteratePlayers(item.fromClubName),
           toClubName: await transliteratePlayers(item.toClubName),
@@ -55,7 +62,7 @@ async function getTransferRssFeed() {
           fromClubPhoto: item.fromClubPhoto,
           toClubPhoto: item.toClubPhoto,
         };
-        console.log();
+        console.log(result);
         const response = await fetchDataByPlayerName(
           result.playerName.EnglishName
         );
@@ -67,7 +74,7 @@ async function getTransferRssFeed() {
         }
         //
       }
-      console.log(items);
+      // console.log(items);
       // return transformedItems;
     } else {
       // Handle HTTP error
@@ -122,8 +129,7 @@ function extractTransferAmount(transferAmount) {
   const extractedTransferInfo = match
     ? match[0].trim()
     : "Transfer info not found";
-  // let modifiedName = name.replace("loan.", "በውሰት");
-  if (extractedTransferInfo == "loan") {
+  if (extractedTransferInfo === "loan") {
     extractedTransferInfo = "በውሰት";
   } else if (extractedTransferInfo == "free transfer") {
     extractedTransferInfo = "ነጻ ዝውውር";
@@ -151,9 +157,18 @@ async function fetchDataByPlayerName(playerName) {
   }
 }
 function extractPhoto(name) {
-  let modifiedName = name.replace(/\s+/g, "-");
+  if (name == null) {
+    return "";
+  } else {
+    name = name.replace(/\.$/, "");
+    let modifiedName = name.replace(/\s+/g, "-");
+    const normalizedString = modifiedName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    let lowercaseName = normalizedString.toLowerCase();
 
-  let photo = `https://fifaratings.com/wp-content/uploads/${modifiedName}.png`;
-  return photo;
+    let photo = `https://fifaratings.com/wp-content/uploads/${lowercaseName}.png`;
+    return photo;
+  }
 }
 module.exports = getTransferRssFeed;
