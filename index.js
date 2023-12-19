@@ -24,6 +24,8 @@ const getTwitterRssFeed = require("./rss_json/twitter");
 const { getInstagramRss } = require("./rss_json/instagram");
 const { instagramList } = require("./rss_json/instagramList");
 const { twitterList } = require("./rss_json/twitterList");
+const { telegramList } = require("./rss_json/telegramList");
+const getTelegramRssFeed = require("./rss_json/telegram");
 mongoose.connect("mongodb+srv://bereketdinku:beki1234@cluster0.69ripac.mongodb.net/postmodel");
 const db = mongoose.connection;
 db.on("error", (err) => {
@@ -39,14 +41,16 @@ app.listen(8000, () => {
   console.log("Server is running on port 8000");
 });
 
-for(const item of twitterList){
-  getTwitterRssFeed(item.rss)
+// for(const item of twitterList){
+//   getTwitterRssFeed(item.rss)
+// }
+for(const item of telegramList){
+   getTelegramRssFeed(item.rss,item.profilePicture)
 }
 
-
-for (const item of instagramList){
-  getInstagramRss(item.rss,item.profilePicture)
-}
+// for (const item of instagramList){
+//   getInstagramRss(item.rss,item.profilePicture)
+// }
 
 app.use("/api/rss", router);
 cron.schedule("0 0 * * *", async () => {

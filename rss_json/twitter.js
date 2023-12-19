@@ -45,7 +45,7 @@ async function getTwitterRssFeed(rssUrl) {
           previewImage: item.previewImage,
           source: item.source,
         };
-        const data = await fetchDataByImage(item.image);
+        const data = await fetchDataByImage(item.previewImage);
         if (data) {
           console.log(data);
         } else {
@@ -79,10 +79,10 @@ function removeAt(usernameWithAt){
   const usernameWithoutAt = usernameWithAt.replace('@', '');
   return usernameWithoutAt
 }
-async function fetchDataByImage(image) {
+async function fetchDataByImage(previewImage) {
   try {
     // Fetch data by email
-    const result = await Post.findOne({ image });
+    const result = await Post.findOne({ previewImage });
 
     return result;
   } catch (error) {
