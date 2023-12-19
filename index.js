@@ -17,9 +17,14 @@ const {
   RSS_FOUR,
   RSS_FIVE,
   RSS_TWO,
+  
 } = require("./rss_json/rss_constants");
 const getFaceBookRssFeed = require("./rss_json/facebook");
-mongoose.connect("mongodb://localhost:27017/rss");
+const getTwitterRssFeed = require("./rss_json/twitter");
+const { getInstagramRss } = require("./rss_json/instagram");
+const { instagramList } = require("./rss_json/instagramList");
+const { twitterList } = require("./rss_json/twitterList");
+mongoose.connect("mongodb+srv://bereketdinku:beki1234@cluster0.69ripac.mongodb.net/postmodel");
 const db = mongoose.connection;
 db.on("error", (err) => {
   console.log(err);
@@ -33,22 +38,18 @@ app.use(bodyparser.json());
 app.listen(8000, () => {
   console.log("Server is running on port 8000");
 });
-// run auto store
-// runAutoStoresFeed();
-// getTransferRssFeed();
-getTransferRssFeed();
 
-// mainFaceBook();
-// getFaceBookRssFeed(RSS_ONE);
-// getFaceBookRssFeed(RSS_THREE);
-// getFaceBookRssFeed(RSS_FOUR);
-// getFaceBookRssFeed(RSS_FIVE);
-// getFaceBookRssFeed(RSS_TWO);
-//api route
+for(const item of twitterList){
+  getTwitterRssFeed(item.rss)
+}
+
+
+for (const item of instagramList){
+  getInstagramRss(item.rss,item.profilePicture)
+}
+
 app.use("/api/rss", router);
 cron.schedule("0 0 * * *", async () => {
   console.log("Running RSS fetch and store task...");
-  // await getTransferRssFeed(RSS_FIVE);
-
-  // await mainFaceBook();
+  
 });

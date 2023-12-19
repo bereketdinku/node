@@ -2,11 +2,11 @@ const axios = require("axios");
 const parseString = require("xml2js").parseString;
 const { ObjectId } = require("mongodb"); // Assuming you are using MongoDB
 const Post = require("../models/Post");
+const cheerio = require('cheerio');
+// const rssUrl =
+//   "http://fetchrss.com/rss/6561fb3580746912e74802d26572032b1d95834d31500702.xml";
 
-const rssUrl =
-  "http://fetchrss.com/rss/6561fb3580746912e74802d26572032b1d95834d31500702.xml";
-
-async function getTwitterRssFeed() {
+async function getTwitterRssFeed(rssUrl) {
   try {
     const response = await axios.get(rssUrl);
 
@@ -19,26 +19,25 @@ async function getTwitterRssFeed() {
           console.error("Error converting XML to JSON:", err);
         } else {
           // Extract relevant information
+          const profilePicture=result.rss.channel.image.url
           items = result.rss.channel.item.map((node) => ({
-            fromClubName: node.contentText,
-            image: node.image,
-            authors: node.authors,
-            accountName: node.accountName,
-            datePublished: node.datePublished,
-            previewImage: node.previewImage,
+            contentText: node.title,
+            image:profilePicture ,
+            authors: removeAt( node["dc:creator"]),
+            accountName: removeAt( node["dc:creator"]),
+            datePublished: node.pubDate,
+            previewImage: extractImage( node.description),
             source: "twitter",
             // Add more fields as needed
           }));
         }
       });
 
-      if (process.env.NODE_ENV === "development") {
-        // console.log(items);
-      }
+    
 
       for (const item of items) {
         const result = {
-          fromClubName: item.contentText,
+          contentText: item.contentText,
           image: item.image,
           authors: item.authors,
           accountName: item.accountName,
@@ -46,8 +45,17 @@ async function getTwitterRssFeed() {
           previewImage: item.previewImage,
           source: item.source,
         };
-        // Post(result).save()
+        const data = await fetchDataByImage(item.image);
+        if (data) {
+          console.log(data);
+        } else {
+          Post(result).save()
+          console.log('Twitter data add to db')
+        }
+       
+        // console.log(result)
       }
+      // console.log(items)
       return items;
     } else {
       // Handle HTTP error
@@ -60,5 +68,26 @@ async function getTwitterRssFeed() {
     return [];
   }
 }
+function extractImage(description){
+  const $ = cheerio.load(description);
 
+  // Find the image tag and get the 'src' attribute
+  const imageUrl = $('img').attr('src');
+  return imageUrl
+}
+function removeAt(usernameWithAt){
+  const usernameWithoutAt = usernameWithAt.replace('@', '');
+  return usernameWithoutAt
+}
+async function fetchDataByImage(image) {
+  try {
+    // Fetch data by email
+    const result = await Post.findOne({ image });
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching data by email:", error);
+  } finally {
+  }
+}
 module.exports = getTwitterRssFeed;
